@@ -5,10 +5,34 @@ etcJupyter:
 nfsPVC:
   enabled: false
   # If you want a PVC with NFS that can be used to mount home directories
-  # nfs:
-    # serverIP: # IP of your NFS Server
-    # shareName: # Path of your NFS share export
+  #nfs:
+    #serverIP: fs-d59c0f7f.efs.us-west-2.amazonaws.com # IP of your NFS Server
+    #shareName: hackweek-cluster-home-dirs # Path of your NFS share export
 
-jupyterhub: {}
+jupyterhub:
+  prePuller:
+    continuous:
+      enabled: false
+    hook:
+      enabled: false
+  scheduling:
+    userScheduler:
+      enabled: false
+    userPods:
+      nodeAffinity:
+        matchNodePurpose: require
+  singleuser:
+    cloudMetadata:
+      enabled: true
+    defaultUrl: "/lab"
+  hub:
+    extraConfig:
+      jupyterlab: |
+        c.Spawner.cmd = ['jupyter-labhub']
+
     # z2jh customizations go here
 
+rbac:
+  enabled: true
+  serviceAccountName: "jovyan"
+#  serviceAccountRoleArn: "arn:aws:iam::783380859522:role/icesat2-hackweek-bucket-access-serviceaccount"

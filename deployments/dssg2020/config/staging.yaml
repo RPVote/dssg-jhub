@@ -1,0 +1,46 @@
+jupyterhub:
+  # proxy:
+  #   https:
+  #     enabled: true
+  #     hosts:
+  #       - staging.dssg.hackweek.io
+  #     letsencrypt:
+  #       contactEmail: scottyh@uw.edu
+  singleuser:
+    image:
+      name: scottyhq/jhub-rstudio
+      tag: latest
+    # initContainers:
+    #   - name: volume-mount-hack
+    #     image: busybox
+    #     command:
+    #       - "sh"
+    #       - "-c"
+    #       - >
+    #         id && chown 1000:1000 /srv/shared && ls -lhd /srv/shared ;
+    #     securityContext:
+    #       runAsUser: 0
+    #     volumeMounts:
+    #       - name: jupyterhub-shared
+    #         mountPath: /srv/shared
+    #         subPath: "dssg.hackweek.io/shared"
+    # storage:
+    #   extraVolumeMounts:
+    #     - name: jupyterhub-shared
+    #       mountPath: /srv/shared
+    #       subPath: "dssg.hackweek.io/shared"
+    #   extraVolumes:
+    #     - name: jupyterhub-shared
+    #       persistentVolumeClaim:
+    #         claimName: shared-nfs
+
+  hub:
+    resources:
+      requests:
+        cpu: 0
+        memory: 0
+      limits:
+        cpu: 0.5
+        memory: 1G
+    # extraEnv:
+    #   OAUTH_CALLBACK_URL: "https://staging.dssg.hackweek.io/hub/oauth_callback"

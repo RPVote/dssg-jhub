@@ -1,0 +1,43 @@
+jupyterhub:
+  singleuser:
+    memory:
+      guarantee: 512M
+      #limit: 1G
+    serviceAccountName: jovyan
+   # Only settings required to use the efs-provisioner
+    storage:
+      dynamic:
+        storageClass: aws-efs
+    startTimeout: 600
+    cpu:
+      limit: 2
+      guarantee: 1
+    memory:
+      limit: 8G
+      guarantee: 7G
+
+  # auth:
+  #   type: custom
+  #   custom:
+  #     className: oauthenticator.generic.GenericOAuthenticator
+  #     config:
+  #       login_service: "auth0"
+  #       token_url: https://uwhackweeks.auth0.com/oauth/token
+  #       userdata_url: https://uwhackweeks.auth0.com/oauth/userinfo
+  #       userdata_method: GET
+  #       username_key: nickname
+  #       scope:
+  #         - openid
+  #         - profile
+  #         - email
+  hub:
+    resources:
+      requests:
+        cpu: 0.5
+        memory: 1G
+      limits:
+        cpu: 1.5
+        memory: 2G
+    # extraEnv:
+    #   OAUTH2_AUTHORIZE_URL: "https://uwhackweeks.auth0.com/authorize"
+    #   OAUTH2_TOKEN_URL: "https://uwhackweeks.auth0.com/oauth/token"

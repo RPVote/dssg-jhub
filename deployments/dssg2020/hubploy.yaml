@@ -1,0 +1,7 @@
+cluster:
+  provider: aws
+  aws:
+    project: 783380859522
+    zone: us-west-2
+    cluster: dssg2020-eicompare
+    service_key: aws-eks-config.cfg
