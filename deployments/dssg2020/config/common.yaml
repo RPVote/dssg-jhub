@@ -1,9 +1,13 @@
 jupyterhub:
+  # https: false must be specified for initial deployment to work!
+  # proxy:
+  #    https:
+  #      enabled: false
+  prePuller:
+    continuous:
+      enabled: true
   singleuser:
-    memory:
-      guarantee: 512M
-      #limit: 1G
-    serviceAccountName: jovyan
+#    serviceAccountName: jovyan
    # Only settings required to use the efs-provisioner
     storage:
       dynamic:
@@ -15,21 +19,60 @@ jupyterhub:
     memory:
       limit: 8G
       guarantee: 7G
+    image:
+      name: scottyhq/jhub-rstudio
+      tag: latest
+    initContainers:
+      - name: volume-mount-hack
+        image: busybox
+        command:
+          - "sh"
+          - "-c"
+          - >
+            id && chown 1000:1000 /srv/shared && ls -lhd /srv/shared ;
+        securityContext:
+          runAsUser: 0
+        volumeMounts:
+          - name: jupyterhub-shared
+            mountPath: /srv/shared
+            subPath: "dssg.hackweek.io/shared"
+    storage:
+      extraVolumeMounts:
+        - name: jupyterhub-shared
+          mountPath: /srv/shared
+          subPath: "dssg.hackweek.io/shared"
+      extraVolumes:
+        - name: jupyterhub-shared
+          persistentVolumeClaim:
+            claimName: shared-nfs
+    lifecycleHooks:
+      postStart:
+        exec:
+          command:
+            - "sh"
+            - "-c"
+            - >
+              ln -sf /srv/shared /home/jovyan/shared
 
-  # auth:
-  #   type: custom
-  #   custom:
-  #     className: oauthenticator.generic.GenericOAuthenticator
-  #     config:
-  #       login_service: "auth0"
-  #       token_url: https://uwhackweeks.auth0.com/oauth/token
-  #       userdata_url: https://uwhackweeks.auth0.com/oauth/userinfo
-  #       userdata_method: GET
-  #       username_key: nickname
-  #       scope:
-  #         - openid
-  #         - profile
-  #         - email
+  auth:
+    type: custom
+    custom:
+      className: oauthenticator.generic.GenericOAuthenticator
+      config:
+        login_service: "auth0"
+        token_url: https://uwhackweeks.auth0.com/oauth/token
+        userdata_url: https://uwhackweeks.auth0.com/oauth/userinfo
+        userdata_method: GET
+        username_key: nickname
+        scope:
+          - openid
+          - profile
+          - email
+    admin:
+      access: true
+      users:
+        - scottyhq
+        - salvis2
   hub:
     resources:
       requests:
@@ -38,6 +81,11 @@ jupyterhub:
       limits:
         cpu: 1.5
         memory: 2G
-    # extraEnv:
-    #   OAUTH2_AUTHORIZE_URL: "https://uwhackweeks.auth0.com/authorize"
-    #   OAUTH2_TOKEN_URL: "https://uwhackweeks.auth0.com/oauth/token"
+    extraConfig:
+      00-spawner-config: |
+        c.Spawner.cmd = ['jupyter-labhub']
+      01-hub-config: |
+        c.JupyterHub.shutdown_on_logout = True
+    extraEnv:
+      OAUTH2_AUTHORIZE_URL: "https://uwhackweeks.auth0.com/authorize"
+      OAUTH2_TOKEN_URL: "https://uwhackweeks.auth0.com/oauth/token"

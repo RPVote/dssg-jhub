@@ -34,5 +34,5 @@ jupyterhub:
 
 rbac:
   enabled: true
-  serviceAccountName: "jovyan"
+#  serviceAccountName: "jovyan"
 #  serviceAccountRoleArn: "arn:aws:iam::783380859522:role/icesat2-hackweek-bucket-access-serviceaccount"
