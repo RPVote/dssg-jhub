@@ -7,11 +7,7 @@ jupyterhub:
     continuous:
       enabled: true
   singleuser:
-#    serviceAccountName: jovyan
-   # Only settings required to use the efs-provisioner
-    storage:
-      dynamic:
-        storageClass: aws-efs
+#    serviceAccountName: jovyan #must create separately, otherwise use 'default'
     startTimeout: 600
     cpu:
       limit: 2
@@ -37,14 +33,21 @@ jupyterhub:
             mountPath: /srv/shared
             subPath: "dssg.hackweek.io/shared"
     storage:
+      dynamic:
+        storageClass: aws-efs
       extraVolumeMounts:
         - name: jupyterhub-shared
           mountPath: /srv/shared
           subPath: "dssg.hackweek.io/shared"
+        # - name: singleuser-scratch
+        #   mountPath: /srv/scratch
       extraVolumes:
         - name: jupyterhub-shared
           persistentVolumeClaim:
             claimName: shared-nfs
+        # - name: singleuser-scratch
+        #   persistentVolumeClaim:
+        #     claimName: scratch-ebs
     lifecycleHooks:
       postStart:
         exec:

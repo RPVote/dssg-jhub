@@ -16,6 +16,7 @@ jobs:
         name: unlock git-crypt secrets
         env:
           GIT_CRYPT_KEY: ${{ secrets.GIT_CRYPT_KEY }}
+          MYHUB: dssg2020
         with:
           entrypoint: /bin/bash
           # BE, VEWY VEWY QUIET. Bugs hidden down here among the quotes
@@ -27,10 +28,10 @@ jobs:
           # that github *is* passing the variable into the container too.
           # Given that this is our git crypt key, I'm scared
           args: -c "echo ${GIT_CRYPT_KEY} | base64 -d | git crypt unlock - && git crypt status"
-      - uses: docker://yuvipanda/hubploy:20191210215236cfab2d
-        name: build & push image if needed
-        with:
-          args: build myhub --check-registry --push
+#      - uses: docker://yuvipanda/hubploy:20191210215236cfab2d
+#        name: build & push image if needed
+#        with:
+#          args: build  --check-registry --push
       - uses: docker://yuvipanda/hubploy:20191210215236cfab2d
         name: Setup Helm
         with:
@@ -40,9 +41,9 @@ jobs:
         name: Deploy to staging
         if: github.ref == 'refs/heads/staging'
         with:
-          args: deploy myhub hub staging
+          args: deploy ${{ env.MYHUB }} hub staging
       - uses: docker://yuvipanda/hubploy:20191210215236cfab2d
         name: Deploy to prod
         if: github.ref == 'refs/heads/prod'
         with:
-          args: deploy myhub hub prod
+          args: deploy ${{ env.MYHUB }} hub prod
