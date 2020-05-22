@@ -19,7 +19,7 @@ jupyterhub:
       name: scottyhq/jhub-rstudio
       tag: latest
     initContainers:
-      - name: volume-mount-hack
+      - name: mount-shared-folder
         image: busybox
         command:
           - "sh"
@@ -55,7 +55,7 @@ jupyterhub:
             - "sh"
             - "-c"
             - >
-              ln -sf /srv/shared /home/jovyan/shared
+              test -L /home/jovyan/shared || ln -s /srv/shared /home/jovyan/shared
 
   auth:
     type: custom
