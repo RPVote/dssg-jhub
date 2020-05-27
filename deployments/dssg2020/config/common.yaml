@@ -7,6 +7,7 @@ jupyterhub:
     continuous:
       enabled: true
   singleuser:
+    defaultUrl: "/rstudio"
 #    serviceAccountName: jovyan #must create separately, otherwise use 'default'
     startTimeout: 600
     cpu:
@@ -16,7 +17,7 @@ jupyterhub:
       limit: 8G
       guarantee: 7G
     image:
-      name: scottyhq/jhub-rstudio
+      name: eicompare/jhub-rstudio
       tag: latest
     initContainers:
       - name: mount-shared-folder
@@ -62,7 +63,7 @@ jupyterhub:
     custom:
       className: oauthenticator.generic.GenericOAuthenticator
       config:
-        login_service: "auth0"
+        login_service: "Auth0"
         token_url: https://uwhackweeks.auth0.com/oauth/token
         userdata_url: https://uwhackweeks.auth0.com/oauth/userinfo
         userdata_method: GET
@@ -84,11 +85,36 @@ jupyterhub:
       limits:
         cpu: 1.5
         memory: 2G
+    initContainers:
+      - name: git-clone-templates
+        image: alpine/git
+        args:
+          - clone
+          - --single-branch
+          - --branch=master
+          - --depth=1
+          - --
+          - https://github.com/scottyhq/dssg-jhub-templates.git
+          - /etc/jupyterhub/custom
+        securityContext:
+          runAsUser: 0
+        volumeMounts:
+          - name: custom-templates
+            mountPath: /etc/jupyterhub/custom
+    extraVolumes:
+      - name: custom-templates
+        emptyDir: {}
+    extraVolumeMounts:
+      - name: custom-templates
+        mountPath: /etc/jupyterhub/custom
     extraConfig:
-      00-spawner-config: |
+      00-templates: |
+        c.JupyterHub.template_paths = ['/etc/jupyterhub/custom/templates']
+      01-spawner-config: |
         c.Spawner.cmd = ['jupyter-labhub']
-      01-hub-config: |
-        c.JupyterHub.shutdown_on_logout = True
+# disable for now to allow switching between /lab and /rstudio
+#      01-hub-config: |
+#        c.JupyterHub.shutdown_on_logout = True
     extraEnv:
       OAUTH2_AUTHORIZE_URL: "https://uwhackweeks.auth0.com/authorize"
       OAUTH2_TOKEN_URL: "https://uwhackweeks.auth0.com/oauth/token"
