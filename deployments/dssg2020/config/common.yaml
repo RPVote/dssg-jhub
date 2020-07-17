@@ -58,9 +58,9 @@ jupyterhub:
             - >
               test -L /home/jovyan/shared || ln -s /srv/shared /home/jovyan/shared
 
-  # automatically terminate pods after 12 hours 
+  # automatically terminate pods after 24 hours 
   cull:
-    maxAge: 43200  
+    maxAge: 86400  
   
   auth:
     type: custom
