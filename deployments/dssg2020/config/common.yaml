@@ -19,7 +19,7 @@ jupyterhub:
         kubespawner_override:
           cpu_guarantee: 7 
           cpu_limit: 8
-          mem_guarantee: 30G 
+          mem_guarantee: 28G 
           mem_limit: 32G
     cpu:
       limit: 2
